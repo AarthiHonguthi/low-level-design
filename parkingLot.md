@@ -42,8 +42,7 @@ As humans, we cannot think of all the requirements at once — and we are not su
 
 After the discussion, the candidate writes down only what is confirmed.
 
-![alt text](WhatsAppImage2026-01-15at11.02.00.jpeg)
-
+![alt text](image-3.png)
 ---
 ## Story Time
 Before jumping into diagrams or code, we write a simple story describing how the system works in real life.
