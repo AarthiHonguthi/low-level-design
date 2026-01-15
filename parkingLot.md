@@ -12,7 +12,7 @@ As humans, we cannot think of all the requirements at once — and we are not su
 
 ---
 
-> **Interviewer ↔ Candidate Clarification**
+> ## **Interviewer ↔ Candidate Clarification**
 >
 > **Candidate:** What types of vehicles should this parking lot support?  
 > **Interviewer:** The parking lot should support three types of vehicles: Bike, Car, and Truck.  
@@ -55,4 +55,70 @@ While writing this story, we follow one simple rule:
 This helps us naturally identify what objects exist in the system and what actions they can perform, without forcing any design upfront.
 
 ![alt text](image-1.png)
-![alt text](image-2.png)
+## Nouns vs Actions (Verbs)
+
+| Nouns (Classes) | Actions (Methods) |
+|-----------------|------------------|
+| Vehicle         | arrives           |
+| Parking Lot     | goes              |
+| Entrance        | checks            |
+| Parking Spot    | issues            |
+| Ticket          | assigns           |
+| Exit            | parks             |
+| System          | validates         |
+| Parking Fee     | calculates        |
+| Payment         | makes             |
+| —               | exits             |
+| —               | becomes available |
+
+## Use Case Diagram (Conceptual)
+
+A use case diagram helps answer two core questions:
+
+1. **Who interacts with the system?**  
+2. **What actions (use cases) do they perform?**
+
+---
+
+## Actors
+
+In most low-level designs, we identify actors that interact with the system.  
+Based on the parking lot assumptions, we identify the following actors:
+
+---
+
+### 1. Customer
+
+**Description:** The person who uses the parking lot as an end user.
+
+**Customer Use Cases:**
+- Enter parking lot
+- Receive parking ticket
+- Pay parking fee
+- Exit parking lot
+
+---
+
+### 2. Admin
+
+**Description:** Responsible for managing and configuring the parking lot.
+
+**Admin Use Cases:**
+- Manage parking spots
+- Manage pricing rules
+
+---
+
+### 3. System
+
+**Description:** Represents the automated behavior handled without manual intervention.
+
+**System Use Cases:**
+- Generate parking ticket
+- Assign parking spot
+- Calculate parking fee
+- Process payment
+
+---
+
+![alt text](<ParkingLot.drawio (2).png>)
