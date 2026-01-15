@@ -42,7 +42,7 @@ As humans, we cannot think of all the requirements at once — and we are not su
 
 After the discussion, the candidate writes down only what is confirmed.
 
-![alt text](image.png)
+![alt text](WhatsAppImage2026-01-15at11.02.00.jpeg)
 
 ---
 ## Story Time
