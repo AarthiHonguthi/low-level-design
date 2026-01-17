@@ -7,8 +7,7 @@
 Design a Parking Lot system that can handle different types of vehicles, assign parking spots, generate tickets, and calculate parking fees.
 
 ---
-LLD is not about jumping straight into classes and code.
-As humans, we cannot think of all the requirements at once — and we are not supposed to. That’s why asking the right questions is a crucial part of Low Level Design. These questions help us understand what the system should actually do before we think about how to design it. Instead of assuming things upfront, we clarify the basics first and let the design evolve step by step.
+LLD is not about jumping straight into classes and code. As humans, we cannot think of all the requirements at once, and that is completely fine. That is why asking the right questions is an important part of Low Level Design. These questions help us understand what the system should do before we decide how to design it. Instead of assuming everything upfront, we start with the basics and correct our understanding step by step as the design evolves.
 
 ---
 
@@ -52,38 +51,29 @@ While writing this story, we follow one simple rule:
 + Nouns represent classes
 + Verbs (action words) represent methods
 
-This helps us naturally identify what objects exist in the system and what actions they can perform, without forcing any design upfront.
+This story helps us understand the complete flow from entry to exit without thinking about implementation details.
+
 
 ![alt text](image-1.png)
-## Nouns vs Actions (Verbs)
+From this story, we can clearly see what actions are performed by the customer and what responsibilities are handled by the system. We will use these observations directly when identifying actors and defining use cases in the next section.
 
-| Nouns (Classes) | Actions (Methods) |
-|-----------------|------------------|
-| Vehicle         | arrives           |
-| Parking Lot     | goes              |
-| Entrance        | checks            |
-| Parking Spot    | issues            |
-| Ticket          | assigns           |
-| Exit            | parks             |
-| System          | validates         |
-| Parking Fee     | calculates        |
-| Payment         | makes             |
-| —               | exits             |
-| —               | becomes available |
+## Use Case Diagram
 
-## Use Case Diagram (Conceptual)
+As we saw in the story, the customer performs actions such as entering the parking lot, receiving a ticket, paying the parking fee, and exiting the system. These actions naturally translate into customer use cases.
 
-A use case diagram helps answer two core questions:
+In most low-level designs, we usually identify two primary actors:
 
-1. **Who interacts with the system?**  
-2. **What actions (use cases) do they perform?**
++ Customer, who uses the system
+
++ Admin, who manages and configures the system
+
+Both of these actors interact with the Parking Lot system, which handles tasks like ticket generation, spot assignment, fee calculation, and payment processing. Using this understanding, we can now model the system behavior using a use case diagram.
 
 ---
 
-## Actors
+## Actors and Their Use Cases
 
-In most low-level designs, we identify actors that interact with the system.  
-Based on the parking lot assumptions, we identify the following actors:
+Based on the discussion, we identify the following actors and their interactions with the Parking Lot system.
 
 ---
 
@@ -121,4 +111,5 @@ Based on the parking lot assumptions, we identify the following actors:
 
 ---
 
-![alt text](<ParkingLot.drawio (2).png>)
+![alt text](<ParkingLot.drawio (4).png>)
+
