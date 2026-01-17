@@ -55,6 +55,8 @@ This story helps us understand the complete flow from entry to exit without thin
 
 
 ![alt text](image-1.png)
+---
+
 From this story, we can clearly see what actions are performed by the customer and what responsibilities are handled by the system. We will use these observations directly when identifying actors and defining use cases in the next section.
 
 ## Use Case Diagram
