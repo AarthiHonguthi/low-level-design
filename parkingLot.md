@@ -1,8 +1,8 @@
-# Parking Lot Low lewel Design
+# Parking Lot Low Level Design
 
 ![alt text](ParkingManagment.gif)
 
-## Problem Statement
+# Problem Statement
 
 Design a Parking Lot system that can handle different types of vehicles, assign parking spots, generate tickets, and calculate parking fees.
 
@@ -60,7 +60,7 @@ This story helps us understand the complete flow from entry to exit without thin
 From this story, we can clearly see what actions are performed by the customer and what responsibilities are handled by the system. We will use these observations directly when identifying actors and defining use cases in the next section.
 
 ---
-## Use Case Diagram
+# Use Case Diagram
 
 
 As we saw in the story, the customer performs actions such as entering the parking lot, receiving a ticket, paying the parking fee, and exiting the system. These actions naturally translate into customer use cases.
@@ -81,39 +81,160 @@ Based on the discussion, we identify the following actors and their interactions
 
 ---
 
-### 1. Customer
+### 1. Admin
 
-**Description:** The person who uses the parking lot as an end user.
-
-**Customer Use Cases:**
-- Enter parking lot
-- Receive parking ticket
-- Pay parking fee
-- Exit parking lot
-
----
-
-### 2. Admin
-
-**Description:** Responsible for managing and configuring the parking lot.
+**Description:**  
+The Admin is responsible for configuring and maintaining the parking lot.
 
 **Admin Use Cases:**
-- Manage parking spots
-- Manage pricing rules
+
+- **Add parking spot**  
+  Add a new parking spot by specifying its type (compact, regular, large) and location.
+
+- **Remove parking spot**  
+  Remove a parking spot from the system if it is unavailable due to maintenance or other reasons.
+
+- **Update parking spot**  
+  Modify the details of an existing parking spot, such as its type or availability status.
+
+- **Manage pricing rules**  
+  Configure or update hourly pricing rules based on vehicle or spot type.
 
 ---
 
-### 3. System
+### 2. Customer
 
-**Description:** Represents the automated behavior handled without manual intervention.
+**Description:**  
+The Customer represents anyone who uses the parking lot to park a vehicle.
 
-**System Use Cases:**
-- Generate parking ticket
-- Assign parking spot
-- Calculate parking fee
-- Process payment
+**Customer Use Cases:**
+
+- **Take parking ticket**  
+  Receive a parking ticket at the entrance, which records the vehicle information and entry time.
+
+- **Park vehicle**  
+  Park the vehicle in the parking spot assigned by the system.
+
+- **Pay parking fee**  
+  Pay the parking fee at exit based on the calculated parking duration.
+
+- **Exit parking lot**  
+  Exit the parking lot after successful payment.
 
 ---
 
+### System Behavior
+
+The following behaviors are handled internally by the Parking Lot system:
+
+- Assign parking spot  
+- Show available or full status  
+- Calculate parking fee  
+- Process payment  
+
+These behaviors are represented as **included use cases** within customer actions in the use case diagram.
+
+---
 ![alt text](<ParkingLot.drawio (4).png>)
 
+---
+# Sequence Diagram
+
+After the use case diagram, the next step is to understand **how different parts of the system talk to each other**.  
+This is done using a **sequence diagram**.
+
+A sequence diagram shows:
+- Who starts the action
+- Which objects are involved
+- The order in which things happen
+
+This helps us see the complete flow clearly.
+
+---
+
+## Why We Use Sequence Diagrams
+
+Use case diagrams show **what actions are possible**.  
+Sequence diagrams show **how those actions actually happen** step by step.
+
+By looking at the flow, we can understand:
+- Which object is responsible for what
+- When objects are created
+- How control moves through the system
+
+This is also where we start noticing **design patterns**.
+
+---
+
+## Interactions in the Parking Lot System
+
+For the parking lot, we focus on two main flows:
+
+1. Vehicle entry
+2. Vehicle exit and payment
+
+These two flows cover the full parking experience.
+
+---
+
+## Vehicle Entry Flow
+
+This sequence shows what happens when a vehicle enters the parking lot.
+
+**Actor:**
+- Customer
+
+**Objects involved:**
+- Entrance
+- ParkingLot
+- ParkingTicket
+- ParkingSpot
+
+**Flow:**
+1. The customer arrives at the entrance.
+2. The entrance asks the parking lot for a ticket.
+3. The parking lot checks if a parking spot is available.
+4. If a spot is available, a ticket is created.
+5. A suitable parking spot is assigned.
+6. The ticket is given to the customer.
+
+---
+
+## Vehicle Exit and Payment Flow
+
+This sequence shows what happens when the customer exits the parking lot.
+
+**Actor:**
+- Customer
+
+**Objects involved:**
+- Exit
+- ParkingTicket
+- ParkingRate
+- Payment
+
+**Flow:**
+1. The customer reaches the exit and shows the parking ticket.
+2. The exit checks the ticket details.
+3. The parking fee is calculated based on parking time.
+4. A payment is initiated.
+5. After successful payment, the vehicle is allowed to exit.
+
+---
+
+## Design Patterns Observed
+
+By looking at these sequences, some patterns become clear:
+
+- **Singleton**  
+  There is only one ParkingLot managing tickets and parking spots.
+
+- **Factory (conceptual)**  
+  Tickets and payments are created during the flow when needed.
+
+- **Strategy (future extension)**  
+  Pricing or payment logic can change without affecting the main flow.
+
+---
+
+Next, we move to implementation and refine the design by adding more requirements in later iterations.
