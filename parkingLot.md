@@ -175,6 +175,8 @@ By looking at the flow, we can understand:
 
 This is also where we start noticing **design patterns**.
 
+![alt text](image-4.png)
+
 ---
 
 ## Interactions in the Parking Lot System
