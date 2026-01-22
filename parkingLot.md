@@ -53,7 +53,7 @@ While writing this story, we follow one simple rule:
 
 This story helps us understand the complete flow from entry to exit without thinking about implementation details.
 
-
+![alt text](image-5.png)
 ![alt text](image-1.png)
 
 From the story above, we can identify the following key entities:
