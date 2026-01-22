@@ -166,8 +166,9 @@ For the parking lot system, the complete user journey can be covered using two m
 
 Together, these two flows represent the entire parking lifecycle.
 
-![alt text](image-4.png)
-![alt text](image-7.png)
+![Parking Entry Sequence](image-4.png)
+
+![Parking Exit Sequence](image-7.png)
 ---
 
 
@@ -192,9 +193,8 @@ From the sequence diagrams, it becomes clear that there is a central `ParkingLot
 * Spot assignment
 * Fee calculation
 
-A key question arises:
 
-> Should there be multiple `ParkingLot` instances?
+> What happens if we have multiple `ParkingLot` instances?
 
 Allowing multiple instances introduces inconsistencies such as:
 
@@ -224,9 +224,8 @@ Important observations:
 * They are created when specific actions occur within the flow.
 * Creation logic should not be scattered across objects.
 
-This raises a design question:
 
-> Who should create these objects?
+>And who should create these objects?
 
 Centralizing creation logic avoids fragmentation and supports extensibility. This aligns with the Factory approach, even if an explicit `TicketFactory` is not implemented yet.
 
