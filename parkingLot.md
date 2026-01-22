@@ -168,86 +168,110 @@ This helps us see the complete flow clearly.
 Use case diagrams show **what actions are possible**.  
 Sequence diagrams show **how those actions actually happen** step by step.
 
-By looking at the flow, we can understand:
-- Which object is responsible for what
-- When objects are created
-- How control moves through the system
+### Key Flows in the Parking Lot System
 
-This is also where we start noticing **design patterns**.
+For the parking lot system, the complete user journey can be covered using two main sequences:
 
-![alt text](image-4.png)
+- Vehicle Entry
+
+- Vehicle Exit and Payment
+
+Together, these two flows represent the entire parking lifecycle.
+
+![alt text](image-5.png)
+
+
+![alt text](image-6.png)
+---
+
+
+## How Sequence Diagrams Help Identify Design Patterns
+
+Sequence diagrams don’t just show flow.
+If you observe them carefully, they help you reason about design decisions and spot patterns that keep appearing across different LLD problems.
+
+Let’s go pattern by pattern and connect them with real thinking and other common LLD questions.
+
+
+
+## Design Patterns Identified
+
+
+## 1. Singleton Pattern
+
+From the sequence diagrams, it becomes clear that there is a central `ParkingLot` system responsible for:
+
+* Entry and exit requests
+* Ticket creation
+* Spot assignment
+* Fee calculation
+
+A key question arises:
+
+> Should there be multiple `ParkingLot` instances?
+
+Allowing multiple instances introduces inconsistencies such as:
+
+* Disagreement on free vs occupied parking spots
+* Duplicate spot assignments
+* Ticket and state desynchronization
+
+Since the parking lot models a physical, shared environment with a unified state, it is logical to use a single instance. This leads to the Singleton pattern.
+
+
+
+> 💡 **LLD Recall**  
+> Systems like Parking Lot, Vending Machine, Elevator System, or Game Board often benefit from Singleton when a single centralized controller drives the workflow.
 
 ---
 
-## Interactions in the Parking Lot System
+## 2. Factory Pattern (Conceptual)
 
-For the parking lot, we focus on two main flows:
+Sequence diagrams also highlight how certain objects are created during runtime:
 
-1. Vehicle entry
-2. Vehicle exit and payment
+* `ParkingTicket` is created when a vehicle enters.
+* `Payment` is created when the customer exits and pays.
 
-These two flows cover the full parking experience.
+Important observations:
 
----
+* These objects are not created at system startup.
+* They are created when specific actions occur within the flow.
+* Creation logic should not be scattered across objects.
 
-## Vehicle Entry Flow
+This raises a design question:
 
-This sequence shows what happens when a vehicle enters the parking lot.
+> Who should create these objects?
 
-**Actor:**
-- Customer
+Centralizing creation logic avoids fragmentation and supports extensibility. This aligns with the Factory approach, even if an explicit `TicketFactory` is not implemented yet.
 
-**Objects involved:**
-- Entrance
-- ParkingLot
-- ParkingTicket
-- ParkingSpot
-
-**Flow:**
-1. The customer arrives at the entrance.
-2. The entrance asks the parking lot for a ticket.
-3. The parking lot checks if a parking spot is available.
-4. If a spot is available, a ticket is created.
-5. A suitable parking spot is assigned.
-6. The ticket is given to the customer.
+> 💡 **LLD Recall**  
+> Domains such as Vending, Food Ordering, Ride Booking, and Order Management frequently use Factory patterns for objects that vary at runtime based on inputs or conditions.
 
 ---
 
-## Vehicle Exit and Payment Flow
+## 3. Strategy Pattern (Future Extension)
 
-This sequence shows what happens when the customer exits the parking lot.
+Sequence diagrams also isolate behaviors such as:
 
-**Actor:**
-- Customer
+* Calculating parking fee
+* Processing payment
 
-**Objects involved:**
-- Exit
-- ParkingTicket
-- ParkingRate
-- Payment
+At present, the system may support:
 
-**Flow:**
-1. The customer reaches the exit and shows the parking ticket.
-2. The exit checks the ticket details.
-3. The parking fee is calculated based on parking time.
-4. A payment is initiated.
-5. After successful payment, the vehicle is allowed to exit.
+* Hourly pricing
+* Cash payments
 
----
+However, future requirements may introduce alternative policies:
 
-## Design Patterns Observed
+* Different pricing models (flat rate, weekend pricing, vehicle-based pricing)
+* Different payment methods (card, UPI, wallet, subscription)
 
-By looking at these sequences, some patterns become clear:
+Since these behaviors are isolated and interchangeable, Strategy becomes a natural candidate. Strategies allow changing implementations without modifying flow logic.
 
-- **Singleton**  
-  There is only one ParkingLot managing tickets and parking spots.
-
-- **Factory (conceptual)**  
-  Tickets and payments are created during the flow when needed.
-
-- **Strategy (future extension)**  
-  Pricing or payment logic can change without affecting the main flow.
+> 💡 **LLD Recall**  
+> Systems with variable rules or policies — e.g., Chess, Pricing Engines, Discount Systems, Payment Systems — often benefit from Strategy when behavior changes independently of workflow.
 
 ---
 
-Next, we move to implementation and refine the design by adding more requirements in later iterations.
+
+
