@@ -56,8 +56,20 @@ This story helps us understand the complete flow from entry to exit without thin
 
 ![alt text](image-1.png)
 
+From the story above, we can identify the following key entities:
 
-From this story, we can clearly see what actions are performed by the customer and what responsibilities are handled by the system. We will use these observations directly when identifying actors and defining use cases in the next section.
+- Vehicle  
+- Parking Lot  
+- Parking Spot  
+- Parking Ticket  
+- Entrance  
+- Exit  
+- Payment  
+
+These entities give us a clear idea of the core objects that will later turn into classes.
+
+
+At the same time, the story also shows what actions are performed by the customer and what responsibilities are handled internally by the system. We will use this understanding directly in the next section while identifying the actors and defining the use cases.
 
 ---
 # Use Case Diagram
@@ -135,8 +147,7 @@ The following behaviors are handled internally by the Parking Lot system:
 These behaviors are represented as **included use cases** within customer actions in the use case diagram.
 
 ---
-![alt text](<ParkingLot.drawio (4).png>)
-
+![alt text](<ParkingLot.drawio (5).png>)
 ---
 # Sequence Diagram
 
