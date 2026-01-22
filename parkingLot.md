@@ -152,18 +152,6 @@ These behaviors are represented as **included use cases** within customer action
 # Sequence Diagram
 
 After the use case diagram, the next step is to understand **how different parts of the system talk to each other**.  
-This is done using a **sequence diagram**.
-
-A sequence diagram shows:
-- Who starts the action
-- Which objects are involved
-- The order in which things happen
-
-This helps us see the complete flow clearly.
-
----
-
-## Why We Use Sequence Diagrams
 
 Use case diagrams show **what actions are possible**.  
 Sequence diagrams show **how those actions actually happen** step by step.
@@ -180,8 +168,7 @@ Together, these two flows represent the entire parking lifecycle.
 
 ![alt text](image-5.png)
 
-
-![alt text](image-6.png)
+![alt text](image-7.png)
 ---
 
 
