@@ -259,4 +259,223 @@ Since these behaviors are isolated and interchangeable, Strategy becomes a natur
 ---
 
 
+# Code Implementation
 
+```python
+from abc import ABC, abstractmethod
+from enum import Enum
+import time
+```
+# Vehicle Class
+````python
+class Vehicle:
+    def __init__(self, number, vehicle_type):
+        self._number = number
+        self._type = vehicle_type
+
+    def get_type(self):
+        return self._type
+
+````
+`````python
+class VehicleType(Enum):
+    BIKE = 1
+    CAR = 2
+    TRUCK = 3
+
+
+class SpotType(Enum):
+    COMPACT = 1
+    REGULAR = 2
+    LARGE = 3
+`````
+
+>💡 **Enum**  
+>Use enum when the options are **fixed** and will not change.
+It only tells what type it is, no logic inside.
+
+
+# ParkingSpot Class
+```python
+class ParkingSpot:
+    def __init__(self, spot_id, spot_type):
+        self._id = spot_id
+        self._type = spot_type
+        self._occupied = False
+
+    def is_available(self):
+        return not self._occupied
+
+    def occupy(self):
+        self._occupied = True
+
+    def free(self):
+        self._occupied = False
+
+    def get_type(self):
+        return self._type
+```
+
+>🪝 **Hook 1**  
+ParkingSpot only stores state.  
+No decisions here.
+
+# ParkingTicket Class
+```python
+
+class ParkingTicket:
+    def __init__(self, ticket_id, vehicle, spot):
+        self._ticket_id = ticket_id
+        self._vehicle = vehicle
+        self._spot = spot
+        self._entry_time = time.time()
+
+    def get_entry_time(self):
+        return self._entry_time
+
+    def get_spot(self):
+        return self._spot
+
+    def get_ticket_id(self):
+        return self._ticket_id
+```
+
+
+# Pricing Strategy Classes
+```python
+class PricingStrategy(ABC):
+    @abstractmethod
+    def calculate_fee(self, entry_time, exit_time):
+        pass
+class HourlyPricing(PricingStrategy):
+    def calculate_fee(self, entry_time, exit_time):
+        hours = (exit_time - entry_time) / 3600
+        if hours < 1:
+            hours = 1
+        return hours * 50
+```
+
+>💡 **Abstract Class**  
+Use abstract class when **logic can change**, but method name stays same.
+It tells what work must be done, not how.
+
+>🪝 **Hook 2**  
+Logic can change, method name should not.  
+Strategy pattern.
+
+# Payment Strategy Classes
+```python
+class PaymentStrategy(ABC):
+    @abstractmethod
+    def pay(self, amount):
+        pass
+class CashPayment(PaymentStrategy):
+    def pay(self, amount):
+        print(f"Cash payment received: ₹{amount}")
+        return True
+```
+
+# ParkingLot Class
+```python
+class ParkingLot:
+    _instance = None
+
+    def __init__(self):
+        if ParkingLot._instance:
+            raise Exception("Use get_instance()")
+
+        self._spots = []
+        self._tickets = {}
+        self._ticket_counter = 1
+        self._pricing_strategy = HourlyPricing()
+
+    @staticmethod
+    def get_instance():
+        if not ParkingLot._instance:
+            ParkingLot._instance = ParkingLot()
+        return ParkingLot._instance
+```
+>🪝 **Hook 3**  
+>Only one parking lot object should exist, otherwise data will mismatch.  
+Singleton avoids confusion.
+
+## Spot Assignment Logic
+```python
+    def _find_spot(self, vehicle_type):
+        mapping = {
+            VehicleType.BIKE: SpotType.COMPACT,
+            VehicleType.CAR: SpotType.REGULAR,
+            VehicleType.TRUCK: SpotType.LARGE
+        }
+
+        for spot in self._spots:
+            if spot.get_type() == mapping[vehicle_type] and spot.is_available():
+                return spot
+        return None
+```
+```python
+    def add_spot(self, spot):
+        self._spots.append(spot)
+
+    def park_vehicle(self, vehicle):
+        spot = self._find_spot(vehicle.get_type())
+        if not spot:
+            print("Parking Full")
+            return None
+
+        spot.occupy()
+        ticket = ParkingTicket(self._ticket_counter, vehicle, spot)
+        self._tickets[self._ticket_counter] = ticket
+        print(f"Ticket generated: {self._ticket_counter}")
+        self._ticket_counter += 1
+        return ticket
+```
+## Exit Flow
+```python
+    def exit_vehicle(self, ticket_id, payment_strategy):
+        if ticket_id not in self._tickets:
+            print("Invalid Ticket")
+            return
+
+        ticket = self._tickets[ticket_id]
+        fee = self._pricing_strategy.calculate_fee(
+            ticket.get_entry_time(), time.time()
+        )
+
+        if payment_strategy.pay(fee):
+            ticket.get_spot().free()
+            del self._tickets[ticket_id]
+            print("Exit successful")
+
+```
+## Gates
+```python
+class EntranceGate:
+    def enter(self, vehicle):
+        return ParkingLot.get_instance().park_vehicle(vehicle)
+
+
+class ExitGate:
+    def exit(self, ticket_id):
+        ParkingLot.get_instance().exit_vehicle(ticket_id, CashPayment())
+```
+>🪝 **Hook 4**  
+Gates should never contain business logic.
+
+```python
+if __name__ == "__main__":
+    parking_lot = ParkingLot.get_instance()
+
+    parking_lot.add_spot(ParkingSpot(1, SpotType.COMPACT))
+    parking_lot.add_spot(ParkingSpot(2, SpotType.REGULAR))
+    parking_lot.add_spot(ParkingSpot(3, SpotType.LARGE))
+
+    vehicle = Vehicle("KA01AB1234", VehicleType.CAR)
+
+    entrance = EntranceGate()
+    ticket = entrance.enter(vehicle)
+
+    if ticket:
+        exit_gate = ExitGate()
+        exit_gate.exit(ticket.get_ticket_id())
+```
