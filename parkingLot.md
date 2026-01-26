@@ -460,7 +460,14 @@ class ExitGate:
         ParkingLot.get_instance().exit_vehicle(ticket_id, CashPayment())
 ```
 >🪝 **Hook 4**  
-Gates should never contain business logic.
+**Why Gates?**  
+Real parking lots have many entry and exit points.
+Gates act as a common entry point to the system.   
+If there are no gates, every entry point will directly call ParkingLot.
+Each entry may add its own checks and logic.
+Same logic gets written again and again in different places.
+When rules change, we must update code in many places.
+This increases bugs and makes the system hard to maintain.
 
 ```python
 if __name__ == "__main__":
