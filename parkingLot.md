@@ -71,90 +71,16 @@ These entities give us a clear idea of the core objects that will later turn int
 
 At the same time, the story also shows what actions are performed by the customer and what responsibilities are handled internally by the system. We will use this understanding directly in the next section while identifying the actors and defining the use cases.
 
----
-# Use Case Diagram
-
-
-As we saw in the story, the customer performs actions such as entering the parking lot, receiving a ticket, paying the parking fee, and exiting the system. These actions naturally translate into customer use cases.
-
-In most low-level designs, we usually identify two primary actors:
-
-+ Customer, who uses the system
-
-+ Admin, who manages and configures the system
-
-Both of these actors interact with the Parking Lot system, which handles tasks like ticket generation, spot assignment, fee calculation, and payment processing. Using this understanding, we can now model the system behavior using a use case diagram.
-
----
-
-## Actors and Their Use Cases
-
-Based on the discussion, we identify the following actors and their interactions with the Parking Lot system.
-
----
-
-### 1. Admin
-
-**Description:**  
-The Admin is responsible for configuring and maintaining the parking lot.
-
-**Admin Use Cases:**
-
-- **Add parking spot**  
-  Add a new parking spot by specifying its type (compact, regular, large) and location.
-
-- **Remove parking spot**  
-  Remove a parking spot from the system if it is unavailable due to maintenance or other reasons.
-
-- **Update parking spot**  
-  Modify the details of an existing parking spot, such as its type or availability status.
-
-- **Manage pricing rules**  
-  Configure or update hourly pricing rules based on vehicle or spot type.
-
----
-
-### 2. Customer
-
-**Description:**  
-The Customer represents anyone who uses the parking lot to park a vehicle.
-
-**Customer Use Cases:**
-
-- **Take parking ticket**  
-  Receive a parking ticket at the entrance, which records the vehicle information and entry time.
-
-- **Park vehicle**  
-  Park the vehicle in the parking spot assigned by the system.
-
-- **Pay parking fee**  
-  Pay the parking fee at exit based on the calculated parking duration.
-
-- **Exit parking lot**  
-  Exit the parking lot after successful payment.
-
----
-
-### System Behavior
-
-The following behaviors are handled internally by the Parking Lot system:
-
-- Assign parking spot  
-- Show available or full status  
-- Calculate parking fee  
-- Process payment  
-
-These behaviors are represented as **included use cases** within customer actions in the use case diagram.
-
----
-![alt text](<ParkingLot.drawio (5).png>)
----
 # Sequence Diagram
 
-After the use case diagram, the next step is to understand **how different parts of the system talk to each other**.  
+In the story section, we described how a customer enters, parks, pays, and exits.
 
-Use case diagrams show **what actions are possible**.  
-Sequence diagrams show **how those actions actually happen** step by step.
+Now imagine we pause the story at every step and observe:
+
+- which object is active at that moment?
+- which object it talks to next?
+
+When we connect these moments in order, we get a sequence diagram.
 
 ### Key Flows in the Parking Lot System
 
@@ -186,7 +112,7 @@ Let’s go pattern by pattern and connect them with real thinking and other comm
 
 ## 1. Singleton Pattern
 
-From the sequence diagrams, it becomes clear that there is a central `ParkingLot` system responsible for:
+From the sequence diagrams, it becomes clear that there is a central `ParkingLotSystem` system responsible for:
 
 * Entry and exit requests
 * Ticket creation
@@ -194,7 +120,7 @@ From the sequence diagrams, it becomes clear that there is a central `ParkingLot
 * Fee calculation
 
 
-> What happens if we have multiple `ParkingLot` instances?
+> What happens if we have multiple `ParkingLotSystem` instances?
 
 Allowing multiple instances introduces inconsistencies such as:
 
@@ -365,23 +291,24 @@ Strategy pattern.
 
 # Payment Strategy Classes
 ```python
-class PaymentStrategy(ABC):
+class PaymentService(ABC):
     @abstractmethod
     def pay(self, amount):
         pass
-class CashPayment(PaymentStrategy):
+class CashPayment(PaymentService):
     def pay(self, amount):
         print(f"Cash payment received: ₹{amount}")
         return True
 ```
 
-# ParkingLot Class
+# ParkingLotSystem Class
 ```python
-class ParkingLot:
+class ParkingLotSystem:
     _instance = None
 
+
     def __init__(self):
-        if ParkingLot._instance:
+        if ParkingLotSystem._instance:
             raise Exception("Use get_instance()")
 
         self._spots = []
@@ -391,9 +318,9 @@ class ParkingLot:
 
     @staticmethod
     def get_instance():
-        if not ParkingLot._instance:
-            ParkingLot._instance = ParkingLot()
-        return ParkingLot._instance
+        if not ParkingLotSystem._instance:
+            ParkingLotSystem._instance = ParkingLotSystem()
+        return ParkingLotSystem._instance
 ```
 >🪝 **Hook 3**  
 >Only one parking lot object should exist, otherwise data will mismatch.  
@@ -432,7 +359,7 @@ Singleton avoids confusion.
 ```
 ## Exit Flow
 ```python
-    def exit_vehicle(self, ticket_id, payment_strategy):
+    def exit_vehicle(self, ticket_id, payment_service):
         if ticket_id not in self._tickets:
             print("Invalid Ticket")
             return
@@ -442,7 +369,7 @@ Singleton avoids confusion.
             ticket.get_entry_time(), time.time()
         )
 
-        if payment_strategy.pay(fee):
+        if payment_service.pay(fee):
             ticket.get_spot().free()
             del self._tickets[ticket_id]
             print("Exit successful")
@@ -452,18 +379,18 @@ Singleton avoids confusion.
 ```python
 class EntranceGate:
     def enter(self, vehicle):
-        return ParkingLot.get_instance().park_vehicle(vehicle)
+        return ParkingLotSystem.get_instance().park_vehicle(vehicle)
 
 
 class ExitGate:
     def exit(self, ticket_id):
-        ParkingLot.get_instance().exit_vehicle(ticket_id, CashPayment())
+        ParkingLotSystem.get_instance().exit_vehicle(ticket_id, CashPayment())
 ```
 >🪝 **Hook 4**  
 **Why Gates?**  
 Real parking lots have many entry and exit points.
 Gates act as a common entry point to the system.   
-If there are no gates, every entry point will directly call ParkingLot.
+If there are no gates, every entry point will directly call ParkingLotSystem.
 Each entry may add its own checks and logic.
 Same logic gets written again and again in different places.
 When rules change, we must update code in many places.
@@ -471,7 +398,7 @@ This increases bugs and makes the system hard to maintain.
 
 ```python
 if __name__ == "__main__":
-    parking_lot = ParkingLot.get_instance()
+    parking_lot = ParkingLotSystem.get_instance()
 
     parking_lot.add_spot(ParkingSpot(1, SpotType.COMPACT))
     parking_lot.add_spot(ParkingSpot(2, SpotType.REGULAR))
