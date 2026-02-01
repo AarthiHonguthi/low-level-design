@@ -80,10 +80,9 @@ In the story section, we described the complete parking journey as a sequence of
 
 In this section, we represent the same story using a sequence diagram by breaking it into **clear system activities** such as requesting entry, assigning a parking spot, calculating the fee, and releasing the spot.
 
-Each boxed section in the diagram represents one major activity handled by the system.  
-The arrows show how different components interact during that activity and in what order the actions occur.
+Each boxed section represents one activity, and the arrows show how different components interact in order.
 
-Together, these activities visually represent the full parking flow exactly as described in the story.
+Together, these activities visually represent the full parking flow described in the story.
 
 ![alt text](image-8.png)
 ---
@@ -101,80 +100,96 @@ Let’s go pattern by pattern and connect them with real thinking and other comm
 ## Design Patterns Identified
 
 
-## 1. Singleton Pattern
+## 1. One Central System Controls the Flow
 
-From the sequence diagrams, it becomes clear that there is a central `ParkingLotSystem` system responsible for:
+What we see in the diagram?
 
-* Entry and exit requests
-* Ticket creation
-* Spot assignment
-* Fee calculation
+```
+Vehicle talks to EntranceGate
+EntranceGate forwards request to System
+System talks to Spot, Ticket, Pricing, Payment
+```
+**Observation:**
 
+* All important decisions happen in one place
+* Other objects are only helping, not deciding
 
-> What happens if we have multiple `ParkingLotSystem` instances?
-
-Allowing multiple instances introduces inconsistencies such as:
-
-* Disagreement on free vs occupied parking spots
-* Duplicate spot assignments
-* Ticket and state desynchronization
-
-Since the parking lot models a physical, shared environment with a unified state, it is logical to use a single instance. This leads to the Singleton pattern.
-
+**Why this matters?**  
+If multiple such system objects existed,
+each could have a different view of available spots and tickets.
 
 
 > 💡 **LLD Recall**  
-> Systems like Parking Lot, Vending Machine, Elevator System, or Game Board often benefit from Singleton when a single centralized controller drives the workflow.
+> When many components depend on the same data,
+keep one central system in charge.   
+(often implemented using Singleton)
 
+>**Singleton**  
+>*Use Singleton when exactly one object
+must control shared data or behavior
+across the entire system.*
 ---
 
-## 2. Factory Pattern (Conceptual)
+## 2. Objects Are Created Only When Needed
 
-Sequence diagrams also highlight how certain objects are created during runtime:
+What we see in the diagram?
+```
+System checks parking availability
+If a suitable spot is found:
+    System creates a ParkingSpot
+    System creates a ParkingTicket
+```
 
-* `ParkingTicket` is created when a vehicle enters.
-* `Payment` is created when the customer exits and pays.
+**Observation:**
+* Parking spots and tickets are created when a vehicle comes in
+* The system chooses the right type based on the vehicle
+* All creation happens in one place
 
-Important observations:
+**Why this matters?**  
+If ticket creation logic is spread across multiple classes,
+the system becomes tightly coupled to concrete classes and full of if-else checks.
 
-* These objects are not created at system startup.
-* They are created when specific actions occur within the flow.
-* Creation logic should not be scattered across objects.
-
-
->And who should create these objects?
-
-Centralizing creation logic avoids fragmentation and supports extensibility. This aligns with the Factory approach, even if an explicit `TicketFactory` is not implemented yet.
+(e.g., different ticket types, digital tickets, subscriptions).
 
 > 💡 **LLD Recall**  
-> Domains such as Vending, Food Ordering, Ride Booking, and Order Management frequently use Factory patterns for objects that vary at runtime based on inputs or conditions.
+> When objects are created as part of a flow,
+keep their creation in one clear place.
+(often implemented using Factory Method)
+
+>**Factory Method**  
+>*Use the Factory Method when you don’t know beforehand
+which exact object needs to be created,
+and that decision depends on runtime conditions.*
 
 ---
 
-## 3. Strategy Pattern (Future Extension)
+## 3. Rules Are Separate from the Main Flow
 
-Sequence diagrams also isolate behaviors such as:
+What we see in the diagram?
+```
+System asks PricingService to calculate the fee
+System asks PaymentService to process the payment
+```
+**Observation:**
+* The system does not calculate the fee itself
+* The system does not handle payment logic itself
+* These rules are handled by separate components
 
-* Calculating parking fee
-* Processing payment
-
-At present, the system may support:
-
-* Hourly pricing
-* Cash payments
-
-However, future requirements may introduce alternative policies:
-
-* Different pricing models (flat rate, weekend pricing, vehicle-based pricing)
-* Different payment methods (card, UPI, wallet, subscription)
-
-Since these behaviors are isolated and interchangeable, Strategy becomes a natural candidate. Strategies allow changing implementations without modifying flow logic.
+**Why this matters?**  
+Pricing and payment rules change often,
+but the parking flow usually stays the same.
+Keeping rules separate makes changes easy.
 
 > 💡 **LLD Recall**  
-> Systems with variable rules or policies — e.g., Chess, Pricing Engines, Discount Systems, Payment Systems — often benefit from Strategy when behavior changes independently of workflow.
+> When rules can change,
+keep them separate from the main flow  
+(often implemented using Strategy-style behavior)
+
+>**Strategy**  
+>*Use Strategy when you have different ways to do the same task and you want to switch between them without changing the main code.*
 
 ---
-
+![alt text](image-9.png)
 
 # Code Implementation
 
