@@ -53,8 +53,9 @@ While writing this story, we follow one simple rule:
 
 This story helps us understand the complete flow from entry to exit without thinking about implementation details.
 
-![alt text](image-6.png)
 ![alt text](image-1.png)
+![alt text](crop.png)
+![alt text](image-5.png)
 
 From the story above, we can identify the following key entities:
 
@@ -69,7 +70,10 @@ From the story above, we can identify the following key entities:
 These entities give us a clear idea of the core objects that will later turn into classes.
 
 
-At the same time, the story also shows what actions are performed by the customer and what responsibilities are handled internally by the system. We will use this understanding directly in the next section while identifying the actors and defining the use cases.
+The story also makes it clear which actions are done by the customer and which are handled by the system.
+In the next section, we use this clarity to observe how the system components talk to each other during the flow.
+
+---
 
 # Sequence Diagram
 
