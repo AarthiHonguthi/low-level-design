@@ -189,7 +189,12 @@ keep them separate from the main flow
 >*Use Strategy when you have different ways to do the same task and you want to switch between them without changing the main code.*
 
 ---
-![alt text](image-9.png)
+| Design Insight                         | Pattern     | Code Decision                                  |
+|--------------------------------------|------------|-----------------------------------------------|
+| One central system controls everything | Singleton  | `ParkingLotSystem`                             |
+| Objects created based on runtime      | Factory    | `ParkingSpotFactory`, `TicketFactory`          |
+| Pricing & payment change independently| Strategy   | `PricingStrategy`, `PaymentStrategy`           |
+
 
 # Code Implementation
 
