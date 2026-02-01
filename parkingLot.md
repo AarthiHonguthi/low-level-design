@@ -74,31 +74,18 @@ The story also makes it clear which actions are done by the customer and which a
 In the next section, we use this clarity to observe how the system components talk to each other during the flow.
 
 ---
-
 # Sequence Diagram
 
-In the story section, we described how a customer enters, parks, pays, and exits.
+In the story section, we described the complete parking journey as a sequence of actions that happen from the moment a vehicle arrives until it leaves.
 
-Now imagine we pause the story at every step and observe:
+In this section, we represent the same story using a sequence diagram by breaking it into **clear system activities** such as requesting entry, assigning a parking spot, calculating the fee, and releasing the spot.
 
-- which object is active at that moment?
-- which object it talks to next?
+Each boxed section in the diagram represents one major activity handled by the system.  
+The arrows show how different components interact during that activity and in what order the actions occur.
 
-When we connect these moments in order, we get a sequence diagram.
+Together, these activities visually represent the full parking flow exactly as described in the story.
 
-### Key Flows in the Parking Lot System
-
-For the parking lot system, the complete user journey can be covered using two main sequences:
-
-- Vehicle Entry
-
-- Vehicle Exit and Payment
-
-Together, these two flows represent the entire parking lifecycle.
-
-![Parking Entry Sequence](image-4.png)
-
-![Parking Exit Sequence](image-7.png)
+![alt text](image-8.png)
 ---
 
 
