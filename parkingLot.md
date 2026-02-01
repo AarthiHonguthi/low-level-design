@@ -192,7 +192,7 @@ keep them separate from the main flow
 | Design Insight                         | Pattern     | Code Decision                                  |
 |--------------------------------------|------------|-----------------------------------------------|
 | One central system controls everything | Singleton  | `ParkingLotSystem`                             |
-| Objects created based on runtime      | Factory    | `ParkingSpotFactory`, `TicketFactory`          |
+| Objects created based on runtime      | Factory    | Factory Method inside ParkingLotSystem          |
 | Pricing & payment change independently| Strategy   | `PricingStrategy`, `PaymentStrategy`           |
 
 
