@@ -93,7 +93,7 @@ Together, these activities visually represent the full parking flow described in
 Sequence diagrams don’t just show flow.
 If you observe them carefully, they help you reason about design decisions and spot patterns that keep appearing across different LLD problems.
 
-Let’s go pattern by pattern and connect them with real thinking and other common LLD questions.
+Let’s go pattern by pattern and connect them with real thinking.
 
 
 
@@ -104,20 +104,29 @@ Let’s go pattern by pattern and connect them with real thinking and other comm
 
 What we see in the diagram?
 
-```
-Vehicle talks to EntranceGate
-EntranceGate forwards request to System
-System talks to Spot, Ticket, Pricing, Payment
-```
-**Observation:**
+* Vehicle talks to EntranceGate
+* EntranceGate forwards to ParkingLotSystem
+* ParkingLotSystem orchestrates everything: checks spots, creates tickets, calculates fees, processes payments
+* All other components (ParkingSpot, PricingService, PaymentService) respond to ParkingLotSystem's requests
 
-* All important decisions happen in one place
-* Other objects are only helping, not deciding
+
+**Observation:**  
+Every decision flows through ParkingLotSystem. No other component independently modifies parking state.
 
 **Why this matters?**  
-If multiple such system objects existed,
-each could have a different view of available spots and tickets.
+Without a central controller, problems arise:
+- **Multiple entrance gates** could assign the same spot to different vehicles
+- **Each gate with its own spot list** leads to inconsistent views of availability
+- **Concurrent access** causes race conditions
 
+**The solution:** One object manages shared data. All operations go through it.
+
+```cpp
+ParkingLotSystem system;
+EntranceGate entrance1(&system);  // Same system
+EntranceGate entrance2(&system);  // Same system
+ExitGate exit(&system);            // Same system
+```
 
 > 💡 **LLD Recall**  
 > When many components depend on the same data,
@@ -125,31 +134,51 @@ keep one central system in charge.
 (often implemented using Singleton)
 
 >**Singleton**  
->*Use Singleton when exactly one object
-must control shared data or behavior
-across the entire system.*
+>*Use Singleton when only one object should exist and everyone in the program uses that same object.*
 ---
 
 ## 2. Objects Are Created Only When Needed
 
 What we see in the diagram?
-```
-System checks parking availability
-If a suitable spot is found:
-    System creates a ParkingSpot
-    System creates a ParkingTicket
-```
+
+* System receives checkAvailability(vehicle) with the vehicle
+* System must find the right type of spot:
+    - Bike → Compact spot
+    - Car → Regular spot
+    - Truck → Large spot
+* Spot type decision happens at runtime
+
 
 **Observation:**
-* Parking spots and tickets are created when a vehicle comes in
-* The system chooses the right type based on the vehicle
-* All creation happens in one place
+The exact spot type to create is determined dynamically based on vehicle type.
+
 
 **Why this matters?**  
-If ticket creation logic is spread across multiple classes,
-the system becomes tightly coupled to concrete classes and full of if-else checks.
+Without a factory, you'd write:
+```cpp
+if (vehicle->getType() == "Bike") {
+    return new CompactSpot();
+} else if (vehicle->getType() == "Car") {
+    return new RegularSpot();
+} else if (vehicle->getType() == "Truck") {
+    return new LargeSpot();
+}
+```
+Problems:
+- Adding new vehicle types (Bus, Motorcycle) requires modifying this code
+- Adding new spot types (Premium, Disabled) requires more conditions
+- Mapping logic scattered across the codebase
 
-(e.g., different ticket types, digital tickets, subscriptions).
+*The solution:* Centralize creation logic in a factory.
+
+```cpp
+class ParkingSpotFactory {
+    ParkingSpot* createSpot(string vehicleType) {
+        // Creation logic in one place
+    }
+};
+```
+
 
 > 💡 **LLD Recall**  
 > When objects are created as part of a flow,
@@ -157,43 +186,66 @@ keep their creation in one clear place.
 (often implemented using Factory Method)
 
 >**Factory Method**  
->*Use the Factory Method when you don’t know beforehand
-which exact object needs to be created,
-and that decision depends on runtime conditions.*
+>*Use the Factory Method when the code asks for an object, and the program chooses which one to create at runtime.*
 
 ---
 
 ## 3. Rules Are Separate from the Main Flow
 
 What we see in the diagram?
-```
-System asks PricingService to calculate the fee
-System asks PaymentService to process the payment
-```
+
+- System asks PricingService to calculate fees
+- System asks PaymentService to process payments
+- System doesn't contain pricing or payment logic itself
+
+
 **Observation:**
-* The system does not calculate the fee itself
-* The system does not handle payment logic itself
-* These rules are handled by separate components
+Business rules are delegated to specialized services.
 
 **Why this matters?**  
-Pricing and payment rules change often,
-but the parking flow usually stays the same.
-Keeping rules separate makes changes easy.
+Rules evolve frequently:
+   - Pricing: Flat rate → First hour free → Peak/off-peak → Member discounts
+   - Payment: Cash → Cash + Card → Multiple payment methods → Subscriptions  
+
+If pricing logic lives in ParkingLotSystem:
+```cpp
+void handleExit(ParkingTicket* ticket) {
+    int hours = calculateHours(ticket);
+    int fee = hours * 50;  // What if this rule changes?
+    // Process payment...
+}
+```
+Every rule change forces modification of ParkingLotSystem.
+
+**The solution:** Separate strategies that can be swapped.
+```cpp
+class PricingStrategy {
+    virtual int calculateFee(time_t entry, time_t exit) = 0;
+};
+
+class HourlyPricing : public PricingStrategy { ... };
+class PeakHourPricing : public PricingStrategy { ... };
+```
+Now:
+- Want weekend pricing? Create new strategy
+- Want to switch at runtime? Change strategy
+- ParkingLotSystem never changes
 
 > 💡 **LLD Recall**  
-> When rules can change,
-keep them separate from the main flow  
-(often implemented using Strategy-style behavior)
+> When algorithms vary and change independently from the main flow, encapsulate them as strategies.
+(often implemented using Strategy Pattern)
 
 >**Strategy**  
->*Use Strategy when you have different ways to do the same task and you want to switch between them without changing the main code.*
+>*Use Strategy when you have multiple ways to do the same task, and you want to switch between them easily.*
 
 ---
-| Design Insight                         | Pattern     | Code Decision                                  |
-|--------------------------------------|------------|-----------------------------------------------|
-| One central system controls everything | Singleton  | `ParkingLotSystem`                             |
-| Objects created based on runtime      | Factory    | Factory Method inside ParkingLotSystem          |
-| Pricing & payment change independently| Strategy   | `PricingStrategy`, `PaymentStrategy`           |
+## Patterns Summary
+
+| When You See This in Future Designs                                   | Use This Pattern | Because                                                             |
+|------------------------------------------------------------------------|------------------|---------------------------------------------------------------------|
+| Multiple components need to access/modify shared data                  | Singleton        | Prevents inconsistent state and ensures a single source of truth    |
+| Object types determined at runtime based on conditions                 | Factory Method   | Centralizes creation logic and makes the system extensible           |
+| Business rules/algorithms that change frequently and independently     | Strategy         | Isolates changing behavior from stable flow                          |
 
 
 # Code Implementation
@@ -307,9 +359,12 @@ Now I’ll walk through the sequence diagram top to bottom and connect these cla
 
 First, I connect all the main actions to one system object.
 What does the system need to remember?
-- To assign a spot → I need all spots
-- To calculate fee → I need pricing service
-- To take payment → I need payment service
+
+<img src="Seq diagram (1).png" width="350">  
+
+In the diagram, both the entrance and exit always talk to the same ParkingLotSystem.  
+That system holds all shared data like spots, pricing, and payments.  
+So no matter where a vehicle enters or exits, every decision uses the same state.
 
 ```cpp
 #include <vector>
@@ -326,12 +381,13 @@ public:
         : pricingService(pricing),
           paymentService(payment) {}
 
-    ParkingTicket* handleEntry(Vehicle* vehicle);
-    void handleExit(ParkingTicket* ticket);
-
     void addSpot(ParkingSpot* spot) {
         spots.push_back(spot);
     }
+
+    ParkingTicket* handleEntry(Vehicle* vehicle);
+
+    void handleExit(ParkingTicket* ticket);
 };
 ```
 Now update the gates so they talk to the same system object.
@@ -374,6 +430,11 @@ So we don’t want:
 Here:
 - ParkingLotSystem decides when to create a ticket
 - EntranceGate handles issuing the ticket
+
+<img src="2 (1).png" width="350">  
+
+The ticket is created by ParkingLotSystem using the createTicket() method only after a vehicle enters,
+so the system decides at runtime whether a ticket is needed and what to create.
 
 ```cpp
 class ParkingLotSystem {
