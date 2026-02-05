@@ -431,6 +431,7 @@ Here:
 - ParkingLotSystem decides when to create a ticket
 - EntranceGate handles issuing the ticket
 
+
 <img src="2 (1).png" width="350">  
 
 The ticket is created by `ParkingLotSystem` using the `createTicket()` method only after a vehicle enters,
@@ -475,13 +476,15 @@ public:
 
 From the sequence diagram:
 
-- System → PricingService
-- System → PaymentService
+<img src="3.png" width="350">  
 
 
-So pricing and payment logic should live outside the system.
+Pricing and payment are kept in separate services because their rules change often.
+Over time, pricing can grow from hourly to weekend or premium models, and payments can expand from cash to card or UPI.
+Since these options live under `PricingService` and `PaymentService`, new choices can be added without touching the main parking flow.
 
 ```cpp
+
 class PricingService {
 public:
     int calculateFee(time_t entryTime, time_t exitTime) {
@@ -490,8 +493,11 @@ public:
         return hours * 50; // hourly pricing
     }
 };
+
+
 ```
 ```cpp
+
 class PaymentService {
 public:
     bool processPayment(int amount) {
@@ -499,6 +505,7 @@ public:
         return true;
     }
 };
+
 ```
 Now complete the exit flow in ParkingLotSystem:
 ```cpp
