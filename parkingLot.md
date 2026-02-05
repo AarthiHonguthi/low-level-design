@@ -479,12 +479,11 @@ From the sequence diagram:
 <img src="3.png" width="350">  
 
 
-Pricing and payment are kept in separate services because their rules change often.
-Over time, pricing can grow from hourly to weekend or premium models, and payments can expand from cash to card or UPI.
+Pricing and payment are kept in separate services because their rules change often.  
+Over time, pricing can grow from hourly to weekend or premium models, and payments can expand from cash to card or UPI.  
 Since these options live under `PricingService` and `PaymentService`, new choices can be added without touching the main parking flow.
 
 ```cpp
-
 class PricingService {
 public:
     int calculateFee(time_t entryTime, time_t exitTime) {
@@ -493,11 +492,8 @@ public:
         return hours * 50; // hourly pricing
     }
 };
-
-
 ```
 ```cpp
-
 class PaymentService {
 public:
     bool processPayment(int amount) {
@@ -505,7 +501,6 @@ public:
         return true;
     }
 };
-
 ```
 Now complete the exit flow in ParkingLotSystem:
 ```cpp
@@ -520,7 +515,8 @@ void ParkingLotSystem::handleExit(ParkingTicket* ticket) {
     }
 }
 ```
-Phase 3: main() Function to Tie It All Together
+## Phase 3: main() Function to Tie It All Together
+
 ```cpp
 int main() {
     PricingService pricingService;
