@@ -360,7 +360,7 @@ Now I’ll walk through the sequence diagram top to bottom and connect these cla
 First, I connect all the main actions to one system object.
 What does the system need to remember?
 
-<img src="Seq diagram (1).png" width="350">  
+<img src="Seq diagram (1).png" width="450">  
 
 In the diagram, both the entrance and exit always talk to the same ParkingLotSystem.  
 That system holds all shared data like spots, pricing, and payments.  
@@ -432,7 +432,7 @@ Here:
 - EntranceGate handles issuing the ticket
 
 
-<img src="2 (1).png" width="350">  
+<img src="2 (1).png" width="450">  
 
 The ticket is created by `ParkingLotSystem` using the `createTicket()` method only after a vehicle enters,
 so the system decides at runtime whether a ticket is needed and what to create.
@@ -476,7 +476,7 @@ public:
 
 From the sequence diagram:
 
-<img src="3.png" width="350">  
+<img src="3.png" width="450">  
 
 
 Pricing and payment are kept in separate services because their rules change often.  
