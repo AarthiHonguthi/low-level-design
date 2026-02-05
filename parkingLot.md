@@ -433,7 +433,7 @@ Here:
 
 <img src="2 (1).png" width="350">  
 
-The ticket is created by ParkingLotSystem using the createTicket() method only after a vehicle enters,
+The ticket is created by `ParkingLotSystem` using the `createTicket()` method only after a vehicle enters,
 so the system decides at runtime whether a ticket is needed and what to create.
 
 ```cpp
